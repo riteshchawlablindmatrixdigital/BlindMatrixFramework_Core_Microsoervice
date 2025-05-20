@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
+
+</head>
 <body>
 <script type="text/javascript"
         src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -12,29 +16,10 @@
 <script type="text/javascript"
         src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.js"></script>
 <script type="text/javascript"
-        src="webjars/jquery/2.2.4/jquery.min.js"></script>
-<script type="text/javascript"
         src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
 
 
-
-
-
-
-<h1>Spring Boot - Multiple file upload example - AJAX</h1>
-
-<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
-    <input type="text" name="extraField"/><br/><br/>
-    <input type="file" name="files"/><br/><br/>
-    <input type="file" name="files"/><br/><br/>
-    <input type="submit" value="Submit" id="btnSubmit"/>
-</form>
-
-<h1>Ajax Post Result</h1>
-<pre>
-    <span id="result"></span>
-</pre>
-
+<h1>Blind Matrix Software</h1>
 <h1>DataTable</h1>
 <pre>
     <table id="example" class="display" cellspacing="0" width="100%">
@@ -44,48 +29,45 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-
-        $("#btnSubmit").click(function (event) {
-
-            //stop submit the form, we will post it manually.
-            event.preventDefault();
-
-            fire_ajax_submit();
-
-        });
-
         fire_ajax_submit();
     });
 
     function fire_ajax_submit() {
 
-        // Get form
-        var form = $('#fileUploadForm')[0];
-
-        var data = new FormData(form);
-
-        data.append("CustomField", "This is some extra data, testing");
-
-        $("#btnSubmit").prop("disabled", true);
-
+        var my_columns = [];
         $.ajax({
             type: "POST",
-           // enctype: 'multipart/form-data',
-
-            url: "/api/upload/multi",
-            //data: data,
+            url: "/api/getHeaders",
             dataType: "json",
-            //http://api.jquery.com/jQuery.ajax/
-            //https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
-            processData: false, //prevent jQuery from automatically transforming the data into a query string
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                $.each(response, function (key, value) {
+                    var my_item = [];
+                    my_item.key = key;
+                    my_item.value = value;
+                    my_columns.push(my_item);
+                });
+                //return my_columns;
+            }
+        });
+       // alert(my_columns);
+        // Get form
+        $.ajax({
+            type: "POST",
+            // enctype: 'multipart/form-data',
+
+            url: "/api/getjSONData",
+            //data: JSON.stringify(""),
+            dataType: "json",
+            processData: true,
             contentType: false,
             cache: false,
             timeout: 600000,
-            success: function (data) {
+            success: function (dataSet) {
 
                 var my_columns = [];
 
-                $.each(data[0], function( key, value ) {
+                $.each(dataSet[dataSet.length - 1], function (key, value) {
                     var my_item = {};
                     my_item.data = key;
                     my_item.title = key;
@@ -93,27 +75,26 @@
                 });
 
                 $('#example').DataTable({
-                    data: data,
-                    "columns": my_columns
+                    columns: my_columns,
+                    //serverSide: true,
+                    //processing: true,
+                    //paging: true,
+                    searching: true,
+                    data: dataSet
                 });
 
                 console.log("SUCCESS : ", data);
-                $("#btnSubmit").prop("disabled", false);
-
-//            $("#result").text(data);
             },
             error: function (e) {
 
-                $("#result").text(e.responseText);
+               // $("#result").text(e.responseText);
                 console.log("ERROR : ", e);
-                $("#btnSubmit").prop("disabled", false);
 
             }
         });
 
 
     }
-
 
 
 </script>

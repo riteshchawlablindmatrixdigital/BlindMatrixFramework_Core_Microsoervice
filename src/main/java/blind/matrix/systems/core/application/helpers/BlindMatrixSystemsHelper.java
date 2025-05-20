@@ -25,13 +25,13 @@ public class BlindMatrixSystemsHelper {
         Sheet sheet = workbook.getSheetAt(0);
         List<List<String>> data = new ArrayList<>();
 
-        Row headerRow = sheet.getRow(0);
-        List<String> headers = new ArrayList<>();
+        //Row headerRow = sheet.getRow(0);
+        /*List<String> headers = new ArrayList<>();
         for (Cell cell : headerRow) {
             headers.add(cell.toString());
         }
-        data.add(headers);
-
+        data.add(headers);*/
+        inputStream.close();
         return getJsonDataFromExcelFileWithoutHeaders(sheet, data);
     }
 
@@ -48,7 +48,7 @@ public class BlindMatrixSystemsHelper {
     }
 
     public List<String> getHeadersFromExcelFile(String filePath) throws IOException {
-        InputStream inputStream = new FileInputStream(filePath);
+        InputStream inputStream = new FileInputStream(filePathExcel);
         Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
         List<List<String>> data = new ArrayList<>();
@@ -58,6 +58,7 @@ public class BlindMatrixSystemsHelper {
         for (Cell cell : headerRow) {
             headers.add(cell.toString());
         }
+        inputStream.close();
         return headers;
     }
 }

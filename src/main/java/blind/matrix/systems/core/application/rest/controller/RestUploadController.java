@@ -1,23 +1,25 @@
 package blind.matrix.systems.core.application.rest.controller;
 
 import blind.matrix.systems.core.application.helpers.BlindMatrixSystemsHelper;
-import blind.matrix.systems.core.application.models.UploadModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @ResponseBody
@@ -57,51 +59,79 @@ public class RestUploadController {
 
     }
 
+
     // Multiple file upload
     @PostMapping("/api/upload/multi")
     public String uploadFileMulti(
-            /*@RequestParam("extraField") String extraField,
-            @RequestParam("files") MultipartFile[] uploadfiles*/) throws JsonProcessingException {
+            @RequestParam("extraField") String extraField,
+            @RequestParam("files") MultipartFile[] uploadfiles) throws IOException {
 
         logger.debug("Multiple file upload!");
 
-        /*String uploadedFileName = Arrays.stream(uploadfiles).map(x -> x.getOriginalFilename())
-                .filter(x -> !StringUtils.isEmpty(x)).collect(Collectors.joining(" , "));
-        */List<List<String>> resultData = null;
+        try {
+            String uploadedFileName = Arrays.stream(uploadfiles).map(x -> x.getOriginalFilename())
+                    .filter(x -> !StringUtils.isEmpty(x)).collect(Collectors.joining(" , "));
+            saveUploadedFiles(Arrays.asList(uploadfiles));
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+        return "Success";
+    }
+
+    @PostMapping("/api/getHeaders")
+    public String getHeaders() throws JsonProcessingException {
+
+        try {
+            List<String> headers = blindMatrixSystemsHelper.getHeadersFromExcelFile(BlindMatrixSystemsHelper.filePathExcel);
+            Map<String,String> map = new LinkedHashMap<>();
+            headers.forEach(header -> {
+                map.put(header, header);
+            });
+            return new ObjectMapper().writeValueAsString(map);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // maps html form to a Model
+    @PostMapping("/api/getjSONData")
+    public String getJsonData() throws JsonProcessingException {
+
+        logger.debug("Multiple file upload! With UploadModel");
+        String result = null;
+        List<List<String>> resultData = null;
         try {
             //saveUploadedFiles(Arrays.asList(uploadfiles));
             resultData = blindMatrixSystemsHelper.getJsonDataFromExcelFile(BlindMatrixSystemsHelper.filePathExcel);
-            resultData.get(0).forEach(System.out::println);
-            resultData.get(1).forEach(System.out::println);
+            List<String> headers = blindMatrixSystemsHelper.getHeadersFromExcelFile(null);
+            List<Map<String, String>> resultMapList = new ArrayList<>();
+            int z = 0;
+            int k = 0;
+            for (List<String> element : resultData) {
+                z = 0;
+                //if (k != 0) {
+                    Map<String, String> linkedHashMap = new LinkedHashMap<>();
+                    for (String dataStr : element) {
+                        linkedHashMap.put(headers.get(z), dataStr);
+                        z++;
+                    }
+                    resultMapList.add(linkedHashMap);
+                //}
+                k++;
+            }
+            Map<String, String> linkedHashMapA = new LinkedHashMap<>();
+            int y=0;
+            for (String dataStr : headers) {
+                linkedHashMapA.put(headers.get(y), dataStr);
+                y++;
+            }
+            resultMapList.add(linkedHashMapA);
+            result = new ObjectMapper().writeValueAsString(resultMapList);
+
         } catch (IOException e) {
-            e.printStackTrace();
+            result = String.format("%s%s", HttpStatus.BAD_REQUEST.name(), HttpStatus.BAD_REQUEST.getReasonPhrase());
         }
-        List<List<String>> dataList = new ArrayList<>();
-        dataList.add(resultData.get(0));
 
-        dataList.add(resultData.get(1));
-
-        //dataList.add(resultData.get(2));
-        String result = new ObjectMapper().writeValueAsString(dataList);
         return result;
-
-    }
-
-    // maps html form to a Model
-    @PostMapping("/api/upload/multi/model")
-    public String multiUploadFileModel(@ModelAttribute UploadModel model) {
-
-        logger.debug("Multiple file upload! With UploadModel");
-
-        try {
-
-            saveUploadedFiles(Arrays.asList(model.getFiles()));
-
-        } catch (IOException e) {
-            return HttpStatus.BAD_REQUEST.getReasonPhrase();
-        }
-
-        return "Successfully uploaded!";
 
     }
 
