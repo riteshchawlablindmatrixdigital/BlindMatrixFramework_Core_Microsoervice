@@ -67,7 +67,7 @@
 
                 var my_columns = [];
 
-                $.each(dataSet[dataSet.length - 1], function (key, value) {
+                $.each(dataSet[1], function (key, value) {
                     var my_item = {};
                     my_item.data = key;
                     my_item.title = key;
@@ -80,10 +80,10 @@
                     //processing: true,
                     //paging: true,
                     searching: true,
-                    data: dataSet
+                    data: dataSet[0]
                 });
 
-                console.log("SUCCESS : ", data);
+                console.log("SUCCESS : ", dataSet);
             },
             error: function (e) {
 

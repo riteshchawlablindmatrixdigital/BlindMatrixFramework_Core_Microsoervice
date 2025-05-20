@@ -111,6 +111,9 @@ public class RestUploadController {
                 //if (k != 0) {
                     Map<String, String> linkedHashMap = new LinkedHashMap<>();
                     for (String dataStr : element) {
+                        if(StringUtils.isEmpty(dataStr)) {
+                            dataStr = "";
+                        }
                         linkedHashMap.put(headers.get(z), dataStr);
                         z++;
                     }
@@ -121,11 +124,16 @@ public class RestUploadController {
             Map<String, String> linkedHashMapA = new LinkedHashMap<>();
             int y=0;
             for (String dataStr : headers) {
+                if(StringUtils.isEmpty(dataStr)) {
+                    dataStr = "";
+                }
                 linkedHashMapA.put(headers.get(y), dataStr);
                 y++;
             }
-            resultMapList.add(linkedHashMapA);
-            result = new ObjectMapper().writeValueAsString(resultMapList);
+            Object[] dataObject = new Object[2];
+            dataObject[0] = resultMapList;
+            dataObject[1] = linkedHashMapA;
+            result = new ObjectMapper().writeValueAsString(dataObject);
 
         } catch (IOException e) {
             result = String.format("%s%s", HttpStatus.BAD_REQUEST.name(), HttpStatus.BAD_REQUEST.getReasonPhrase());
