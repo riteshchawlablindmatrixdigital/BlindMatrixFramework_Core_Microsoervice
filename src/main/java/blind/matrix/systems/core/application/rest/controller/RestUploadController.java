@@ -39,24 +39,17 @@ public class RestUploadController {
     //@ResponseBody
     public String uploadFile(
             @RequestParam("file") MultipartFile uploadfile) {
-
         logger.debug("Single file upload!");
-
         if (uploadfile.isEmpty()) {
             return "please select a file!";
         }
-
         try {
-
             saveUploadedFiles(Arrays.asList(uploadfile));
-
         } catch (IOException e) {
             return HttpStatus.BAD_REQUEST.getReasonPhrase();
         }
-
         return "Successfully uploaded - " +
                 uploadfile.getOriginalFilename();
-
     }
 
 
