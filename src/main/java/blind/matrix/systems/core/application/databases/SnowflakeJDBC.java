@@ -8,6 +8,7 @@ package blind.matrix.systems.core.application.databases;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -17,6 +18,8 @@ import java.util.*;
 public class SnowflakeJDBC {
 
     private static String jdbcUrl = "jdbc:snowflake://ro54113.ap-south-1.aws.snowflakecomputing.com/";
+
+    public static String selectSQL = "SELECT * FROM  SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER LIMIT 10000";
 
     //default constructor
     public SnowflakeJDBC() {
@@ -46,45 +49,47 @@ public class SnowflakeJDBC {
     }
 
     //entry main method
-    public DataWrapper getData() {
-
-
-
-        //change this below URL as per your snowflake instance
-
+    public DataWrapper getData(String query, String numberOfResults) {
         DataWrapper wrapped = new DataWrapper();
-
-        //change this select statement, but make sure the logic below is hard coded for now.
-        String selectSQL = "SELECT * FROM  SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER LIMIT 10000";
-
-        //try-catch block
-        List<Object> resultObj = new ArrayList<>();
-        try {
-
-            System.out.println("\tConnection established, connection id : " + connection);
-            Statement stmt = connection.createStatement();
-            System.out.println("\tGot the statement object, object-id : " + stmt);
-            List<Map<String, Object>> dataList = new ArrayList<>();
-
-            ResultSet resultSet = stmt.executeQuery(selectSQL);
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-            Map<String, String> columnMap = new LinkedHashMap<>();
-            for (int zz = 1; zz <= resultSetMetaData.getColumnCount(); zz++) {
-                columnMap.put(resultSetMetaData.getColumnName(zz),
-                        resultSetMetaData.getColumnTypeName(zz));
-            }
-            while (resultSet.next()) {
-                Map<String, Object> resultedColumnMap = new LinkedHashMap<>();
-                for (int aa = 1; aa <= resultSetMetaData.getColumnCount(); aa++) {
-                    resultedColumnMap.put(resultSet.getMetaData().getColumnName(aa),
-                            resultSet.getObject(aa));
+        String executableQuery = "";
+        if(StringUtils.isNotBlank(query)) {
+            if(!StringUtils.containsIgnoreCase(query, " LIMIT ")) {
+                if(query.contains(";")) {
+                    executableQuery = query.replace(";", "").concat(" LIMIT ").concat(numberOfResults).concat(";");
+                } else {
+                    executableQuery = query.concat(" LIMIT ").concat(numberOfResults).concat(";");
                 }
-                dataList.add(resultedColumnMap);
+
+            } else {
+                executableQuery = query;
             }
-            wrapped.setColumnMap(columnMap);
-            wrapped.setDataList(dataList);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            List<Object> resultObj = new ArrayList<>();
+            try {
+                System.out.println("\tConnection established, connection id : " + connection);
+                Statement stmt = connection.createStatement();
+                System.out.println("\tGot the statement object, object-id : " + stmt);
+                List<Map<String, Object>> dataList = new ArrayList<>();
+
+                ResultSet resultSet = stmt.executeQuery(executableQuery);
+                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+                Map<String, String> columnMap = new LinkedHashMap<>();
+                for (int zz = 1; zz <= resultSetMetaData.getColumnCount(); zz++) {
+                    columnMap.put(resultSetMetaData.getColumnName(zz),
+                            resultSetMetaData.getColumnTypeName(zz));
+                }
+                while (resultSet.next()) {
+                    Map<String, Object> resultedColumnMap = new LinkedHashMap<>();
+                    for (int aa = 1; aa <= resultSetMetaData.getColumnCount(); aa++) {
+                        resultedColumnMap.put(resultSet.getMetaData().getColumnName(aa),
+                                resultSet.getObject(aa));
+                    }
+                    dataList.add(resultedColumnMap);
+                }
+                wrapped.setColumnMap(columnMap);
+                wrapped.setDataList(dataList);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         return wrapped;
     }

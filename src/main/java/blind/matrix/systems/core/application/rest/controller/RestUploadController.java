@@ -1,6 +1,7 @@
 package blind.matrix.systems.core.application.rest.controller;
 
 import blind.matrix.systems.core.application.databases.SnowflakeJDBC;
+import blind.matrix.systems.core.application.dtos.RequestData;
 import blind.matrix.systems.core.application.helpers.BlindMatrixSystemsHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,10 +19,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @ResponseBody
+@RequestMapping("/fiserv/white-data/apis")
 public class RestUploadController {
 
     private final Logger logger = LoggerFactory.getLogger(RestUploadController.class);
@@ -32,17 +31,91 @@ public class RestUploadController {
     @Autowired
     private BlindMatrixSystemsHelper blindMatrixSystemsHelper;
 
+    private static AtomicInteger atomicInteger = new AtomicInteger(100);
+
     @Autowired
     private SnowflakeJDBC snowflakeJDBC;
 
+    private static Map<Integer, String> preFilledDataMap = new LinkedHashMap<>();
 
-    //Save the uploaded file to this folder
     private static String UPLOADED_FOLDER = "C:\\Users\\RiteshNasibAnjlinaYS\\Documents";
 
-    //Single file upload
+    @PostMapping("/api/getDataColumns")
+    public @ResponseBody String getHeaders() throws JsonProcessingException {
+        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData(SnowflakeJDBC.selectSQL, "20000");
+        String finalStr = "";
+        String intermediateStr = "";
+        for(String columnMapValue : wrapped.getColumnMap().keySet()) {
+            intermediateStr = intermediateStr.concat(String.format(" { \"title\" : \"%s\" },", columnMapValue));
+        }
+        int length = intermediateStr.length();
+        String finalString = String.format("[ %s ]", intermediateStr.substring(0, length - 1));
+        System.out.println(finalString);
+        return finalString;
+    }
+    @PostMapping("/getQueryData")
+    public @ResponseBody String getQueryData() {
+        Integer integer = preFilledDataMap.keySet().stream().max(Integer::compareTo).get();
+        String resultStre = preFilledDataMap.get(integer);
+        System.out.println(resultStre);
+        return resultStre;
+    }
+
+    @PostMapping("/execute-query/results")
+    public @ResponseBody String executeQueryResults(@RequestBody RequestData requestData) {
+        SnowflakeJDBC.DataWrapper wrappedData = snowflakeJDBC.getData(requestData.getQuery(), requestData.getNumberOfResults());
+        List<String> resultDataList = new ArrayList<>();
+        if(wrappedData != null) {
+            String finalStr = "";
+            String intermediateStr = "";
+            for(String columnMapValue : wrappedData.getColumnMap().keySet()) {
+                intermediateStr = intermediateStr.concat(String.format(" { \"title\" : \"%s\" },", columnMapValue));
+            }
+            int length = intermediateStr.length();
+            resultDataList.add(String.format("[ %s ]", intermediateStr.substring(0, length - 1)));
+            List<List<String>> valuesToSend = new ArrayList<>();
+            List<Map<String, Object>> allData = wrappedData.getDataList();
+            for(Map<String, Object> mapObj : allData) {
+                List<String> valuesList = new ArrayList<>();
+                for(Map.Entry<String, Object> entry : mapObj.entrySet()) {
+                    entry.setValue(String.valueOf(entry.getValue()));
+                    valuesList.add(String.valueOf(entry.getValue()));
+                }
+                valuesToSend.add(valuesList);
+            }
+            String dataJsonStringVal = new GsonBuilder().create().toJson(valuesToSend);
+            String finalString = String.format("{ \"draw\" : \"%s\", \"recordsTotal\" : %s, \"recordsFiltered\" : \"%s\", \"data\": %s }",
+                    1, wrappedData.getDataList().size(), wrappedData.getDataList().size(), dataJsonStringVal);
+            resultDataList.add(finalString);
+        }
+        String finalDataStr = String.format("{ \"headers\" :  %s , \"queryData\" :  %s  }", resultDataList.get(0), resultDataList.get(1));
+        System.out.println(finalDataStr);
+        preFilledDataMap.put(atomicInteger.getAndIncrement(), resultDataList.get(1));
+        return finalDataStr;
+    }
+
+    @PostMapping("/api/getData")
+    public @ResponseBody String getData() throws JsonProcessingException {
+        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData(SnowflakeJDBC.selectSQL, "20000");
+        List<List<String>> valuesToSend = new ArrayList<>();
+        List<Map<String, Object>> allData = wrapped.getDataList();
+        for(Map<String, Object> mapObj : allData) {
+            List<String> valuesList = new ArrayList<>();
+            for(Map.Entry<String, Object> entry : mapObj.entrySet()) {
+                entry.setValue(String.valueOf(entry.getValue()));
+                valuesList.add(String.valueOf(entry.getValue()));
+            }
+            valuesToSend.add(valuesList);
+        }
+        String dataJsonStringVal = new GsonBuilder().create().toJson(valuesToSend);
+        String finalString = String.format("{ \"draw\" : \"%s\", \"recordsTotal\" : %s, \"recordsFiltered\" : \"%s\", \"data\": %s }",
+                1, wrapped.getDataList().size(), wrapped.getDataList().size(), dataJsonStringVal);
+        System.out.println(finalString);
+        return finalString;
+    }
+
     @PostMapping("/api/upload")
-    // If not @RestController, uncomment this
-    //@ResponseBody
+    @ResponseBody
     public String uploadFile(
             @RequestParam("file") MultipartFile uploadfile) {
         logger.debug("Single file upload!");
@@ -59,66 +132,6 @@ public class RestUploadController {
     }
 
 
-    // Multiple file upload
-    @PostMapping("/api/upload/multi")
-    public String uploadFileMulti(
-            @RequestParam("extraField") String extraField,
-            @RequestParam("files") MultipartFile[] uploadfiles) throws IOException {
-
-        logger.debug("Multiple file upload!");
-
-        try {
-            String uploadedFileName = Arrays.stream(uploadfiles).map(x -> x.getOriginalFilename())
-                    .filter(x -> !StringUtils.isEmpty(x)).collect(Collectors.joining(" , "));
-            saveUploadedFiles(Arrays.asList(uploadfiles));
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        }
-        return "Success";
-    }
-    @PostMapping("/api/getDataColumns")
-    public @ResponseBody String getHeaders() throws JsonProcessingException {
-        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData();
-        String finalStr = "";
-        String intermediateStr = "";
-        for(String columnMapValue : wrapped.getColumnMap().keySet()) {
-            intermediateStr = intermediateStr.concat(String.format(" { \"title\" : \"%s\" },", columnMapValue));
-        }
-        int length = intermediateStr.length();
-        String finalString = String.format("[ %s ]", intermediateStr.substring(0, length - 1));
-        //String dataStr = new GsonBuilder().create().toJson(wrapped.getColumnMap().keySet());
-        System.out.println(finalString);
-        return finalString;
-    }
-
-
-    @PostMapping("/api/getData")
-    public @ResponseBody String getData() throws JsonProcessingException {
-        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData();
-        /*List<Map<String, String>> dataFiltered = wrapped.getDataList().stream().map(stringObjectMap ->
-                stringObjectMap.entrySet().stream().map(stringObjectEntry ->
-                        stringObjectEntry*/
-        //Map<String, String> finalMap = new LinkedHashMap<>();
-        List<List<String>> valuesToSend = new ArrayList<>();
-        List<Map<String, Object>> allData = wrapped.getDataList();
-        for(Map<String, Object> mapObj : allData) {
-            List<String> valuesList = new ArrayList<>();
-            for(Map.Entry<String, Object> entry : mapObj.entrySet()) {
-                entry.setValue(String.valueOf(entry.getValue()));
-                valuesList.add(String.valueOf(entry.getValue()));
-            }
-            valuesToSend.add(valuesList);
-        }
-
-        //String dataJsonString = new GsonBuilder().create().toJson(wrapped.getDataList());
-        String dataJsonStringVal = new GsonBuilder().create().toJson(valuesToSend);
-        String finalString = String.format("{ \"draw\" : \"%s\", \"recordsTotal\" : %s, \"recordsFiltered\" : \"%s\", \"data\": %s }",
-                1, wrapped.getDataList().size(), wrapped.getDataList().size(), dataJsonStringVal);
-        //String finalString1 = String.format("{ \n  \"data\" : %s  \n ", dataJsonString);
-        System.out.println(finalString);
-        return finalString;
-    }
-    // maps html form to a Model
     @PostMapping("/api/getjSONData")
     public String getJsonData() throws JsonProcessingException {
 

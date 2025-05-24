@@ -11,4 +11,9 @@ public class IndexController {
         return "index";
     }
 
+    @GetMapping("/datatable-for-huge-data")
+    public String dataTableForHugeData() {
+        return "datatable-for-huge-data";
+    }
+
 }
