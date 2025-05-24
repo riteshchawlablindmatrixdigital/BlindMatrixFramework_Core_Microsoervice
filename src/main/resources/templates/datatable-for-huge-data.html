@@ -72,14 +72,26 @@
                             'excel',
                             'print'
                         ],
-                        scrollY: true,
-                        scrollX: true,
+                        scrollCollapse: true,
+                        ordering: false,
+                        scroller: true,
+                        scrollY: 200,
                         paging: true,
                         ajax: {
                             url: '/fiserv/white-data/apis/getQueryData',
                             contentType: 'application/json',
                             dataType: "json",
-                            type: 'POST'
+                            type: 'POST',
+                            data: function (data, callback, settings) {
+                                setTimeout(() => {
+                                    callback({
+                                        draw: data.draw,
+                                        data: data.data,
+                                        recordsTotal: data.recordsTotal,
+                                        recordsFiltered: data.recordsFiltered
+                                    });
+                                }, 150);
+                            }
                         }
                     });
                 }

@@ -85,7 +85,7 @@ public class RestUploadController {
             }
             String dataJsonStringVal = new GsonBuilder().create().toJson(valuesToSend);
             String finalString = String.format("{ \"draw\" : \"%s\", \"recordsTotal\" : %s, \"recordsFiltered\" : \"%s\", \"data\": %s }",
-                    1, wrappedData.getDataList().size(), wrappedData.getDataList().size(), dataJsonStringVal);
+                    4, wrappedData.getDataList().size(), wrappedData.getDataList().size(), dataJsonStringVal);
             resultDataList.add(finalString);
         }
         String finalDataStr = String.format("{ \"headers\" :  %s , \"queryData\" :  %s  }", resultDataList.get(0), resultDataList.get(1));

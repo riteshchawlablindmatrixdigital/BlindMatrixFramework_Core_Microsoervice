@@ -21,7 +21,7 @@ $(document).ready(function () {
     var dataObject = [];
     $.ajax({
         type: "POST",
-        url: "/api/getDataColumns",
+        url: "/fiserv/white-data/apis/api/getDataColumns",
         dataType: "json",
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
@@ -48,7 +48,7 @@ $(document).ready(function () {
                 scrollX: true,
                 paging: true,
                 ajax: {
-                    url: '/api/getData',
+                    url: '/fiserv/white-data/apis/api/getData',
                     contentType: 'application/json',
                     dataType: "json",
                     type: 'POST'
