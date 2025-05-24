@@ -9,28 +9,15 @@
 </head>
 <body>
 
-<!--
-<script type="text/javascript"
-        src="https://cdn.datatables.net/scroller/2.4.3/js/dataTables.scroller.js"></script>
-<script type="text/javascript"
-        src="https://cdn.datatables.net/scroller/2.4.3/js/scroller.dataTables.js"></script>
-<script type="text/javascript"
-        src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.js"></script>
-<script type="text/javascript"
-        src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
-
--->
-
 <h1>Blind Matrix Software</h1>
 <h1>DataTable</h1>
 <pre>
-    <table id="example" class="display" cellspacing="0" width="100%">
+    <table id="example" class="display nowrap" cellspacing="0" width="100%" height="auto">
     </table>
 </pre>
 
 <script type="text/javascript">
 $(document).ready(function () {
-    var my_columns = [];
     var dataObject = [];
     $.ajax({
         type: "POST",
@@ -45,7 +32,7 @@ $(document).ready(function () {
                 dataType: "json",
                 processing: true,
                 serverSide: true,
-                /*cache: false,
+                cache: false,
                 timeout: 600000,
                 layout: {
                     topStart: null,
@@ -57,9 +44,9 @@ $(document).ready(function () {
                     'excel',
                     'print'
                 ],
-                scrollY: 300,
-                scrollX: 500,
-                paging: true,*/
+                scrollY: 1000,
+                scrollX: 1000,
+                paging: true,
                 ajax: {
                     url: '/api/getData',
                     contentType: 'application/json',
