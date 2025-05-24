@@ -55,7 +55,7 @@ public class SnowflakeJDBC {
         DataWrapper wrapped = new DataWrapper();
 
         //change this select statement, but make sure the logic below is hard coded for now.
-        String selectSQL = "SELECT * FROM  SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER LIMIT 10";
+        String selectSQL = "SELECT * FROM  SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER LIMIT 10000";
 
         //try-catch block
         List<Object> resultObj = new ArrayList<>();
