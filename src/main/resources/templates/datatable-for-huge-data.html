@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!--<meta name="viewport" content="width=device-width" />-->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.4.3/css/scroller.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/keytable/2.12.1/css/keyTable.dataTables.css">
+    <!--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.dataTables.min.css">-->
+
+
     <script type="text/javascript"
             src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script type="text/javascript"
@@ -16,6 +20,8 @@
             src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.js"></script>
     <script type="text/javascript"
             src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
+<!--    <script type="text/javascript"
+            src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js"></script>-->
 </head>
 <body>
 
@@ -55,13 +61,18 @@
                 success: function (response) {
                     dataObject = eval(response);
                     new DataTable('#example', {
+                        "searching": true,
+                        columnDefs:    [
+                            { className: "dt-body-left", targets: "_all" },
+                            { className: "dt-head-left", targets: "_all" },
+                        ],
                         columns: dataObject.headers,
-                        searching: true,
                         dataType: "json",
                         processing: true,
                         serverSide: true,
                         cache: false,
                         timeout: 600000,
+                        //responsive: true,
                         layout: {
                             topStart: null,
                             topEnd: 'paging'
@@ -91,7 +102,8 @@
                                         recordsFiltered: data.recordsFiltered
                                     });
                                 }, 150);
-                            }
+                            },
+                            processData: false
                         }
                     });
                 }
