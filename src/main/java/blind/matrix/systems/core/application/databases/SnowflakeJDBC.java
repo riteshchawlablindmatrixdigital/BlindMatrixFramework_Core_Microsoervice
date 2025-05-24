@@ -6,22 +6,27 @@ package blind.matrix.systems.core.application.databases;
 
 //java.sql library for all connection objects
 
-import java.sql.*;
-import java.util.Map;
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.springframework.stereotype.Component;
 
-//class definition
+import java.sql.*;
+import java.util.*;
+
+@Component
 public class SnowflakeJDBC {
+
+    private static String jdbcUrl = "jdbc:snowflake://ro54113.ap-south-1.aws.snowflakecomputing.com/";
 
     //default constructor
     public SnowflakeJDBC() {
     }
 
-    //entry main method
-    public static void main(String[] args) {
+    private static Connection connection = getConnection();
 
+    public Gson gson = new GsonBuilder().create();
+
+    private static Connection getConnection() {
         //properties object
         Properties properties = new Properties();
 
@@ -33,41 +38,78 @@ public class SnowflakeJDBC {
         properties.put("db", "SNOWFLAKE_SAMPLE_DATA");
         properties.put("schema", "TPCH_SF1");
         properties.put("role", "ACCOUNTADMIN");
+        try {
+            return DriverManager.getConnection(jdbcUrl, properties);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //entry main method
+    public DataWrapper getData() {
+
+
 
         //change this below URL as per your snowflake instance
-        String jdbcUrl = "jdbc:snowflake://ro54113.ap-south-1.aws.snowflakecomputing.com/";
+
+        DataWrapper wrapped = new DataWrapper();
 
         //change this select statement, but make sure the logic below is hard coded for now.
         String selectSQL = "SELECT * FROM  SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER LIMIT 10";
 
         //try-catch block
+        List<Object> resultObj = new ArrayList<>();
         try {
-            Connection connection = DriverManager.getConnection(jdbcUrl, properties);
+
             System.out.println("\tConnection established, connection id : " + connection);
             Statement stmt = connection.createStatement();
             System.out.println("\tGot the statement object, object-id : " + stmt);
-            SortedSet<Map<String, Object>> dataList = new TreeSet<>();
+            List<Map<String, Object>> dataList = new ArrayList<>();
 
             ResultSet resultSet = stmt.executeQuery(selectSQL);
             ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-            SortedSet<String> columnSet = new TreeSet<>(String::compareTo);
-            for(int zz=1;zz <= resultSetMetaData.getColumnCount();zz++) {
-                columnSet.add(resultSetMetaData.getColumnName(zz));
+            Map<String, String> columnMap = new LinkedHashMap<>();
+            for (int zz = 1; zz <= resultSetMetaData.getColumnCount(); zz++) {
+                columnMap.put(resultSetMetaData.getColumnName(zz),
+                        resultSetMetaData.getColumnTypeName(zz));
             }
-
-
-        } catch(Exception exception) {
-
+            while (resultSet.next()) {
+                Map<String, Object> resultedColumnMap = new LinkedHashMap<>();
+                for (int aa = 1; aa <= resultSetMetaData.getColumnCount(); aa++) {
+                    resultedColumnMap.put(resultSet.getMetaData().getColumnName(aa),
+                            resultSet.getObject(aa));
+                }
+                dataList.add(resultedColumnMap);
+            }
+            wrapped.setColumnMap(columnMap);
+            wrapped.setDataList(dataList);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+        return wrapped;
     }
 
-    /*public enum ColumnType {
+    public class DataWrapper {
 
-        Long, Int, Array, Blob, Integer, Byte, Short, Decimal, BigDecimal,
-        Float, Date, Timestamp, Time, String, Double, Boolean, Object;
+        Map<String, String> columnMap;
 
+        List<Map<String, Object>> dataList;
 
+        public Map<String, String> getColumnMap() {
+            return columnMap;
+        }
 
-    }*/
+        public void setColumnMap(Map<String, String> columnMap) {
+            this.columnMap = columnMap;
+        }
+
+        public List<Map<String, Object>> getDataList() {
+            return dataList;
+        }
+
+        public void setDataList(List<Map<String, Object>> dataList) {
+            this.dataList = dataList;
+        }
+    }
 }
 

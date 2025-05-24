@@ -2,13 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
-
+    <script type="text/javascript"
+            src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
 </head>
 <body>
-<script type="text/javascript"
-        src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script type="text/javascript"
-        src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+
+<!--
 <script type="text/javascript"
         src="https://cdn.datatables.net/scroller/2.4.3/js/dataTables.scroller.js"></script>
 <script type="text/javascript"
@@ -18,6 +19,7 @@
 <script type="text/javascript"
         src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
 
+-->
 
 <h1>Blind Matrix Software</h1>
 <h1>DataTable</h1>
@@ -27,76 +29,48 @@
 </pre>
 
 <script type="text/javascript">
-
-    $(document).ready(function () {
-        fire_ajax_submit();
+$(document).ready(function () {
+    var my_columns = [];
+    var dataObject = [];
+    $.ajax({
+        type: "POST",
+        url: "/api/getDataColumns",
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            dataObject = eval(response);
+            new DataTable('#example', {
+                columns: dataObject,
+                searching: true,
+                dataType: "json",
+                processing: true,
+                serverSide: true,
+                /*cache: false,
+                timeout: 600000,
+                layout: {
+                    topStart: null,
+                    topEnd: 'paging'
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    'colvis',
+                    'excel',
+                    'print'
+                ],
+                scrollY: 300,
+                scrollX: 500,
+                paging: true,*/
+                ajax: {
+                    url: '/api/getData',
+                    contentType: 'application/json',
+                    dataType: "json",
+                    type: 'POST'
+                }
+            });
+        }
     });
-
-    function fire_ajax_submit() {
-
-        var my_columns = [];
-        $.ajax({
-            type: "POST",
-            url: "/api/getHeaders",
-            dataType: "json",
-            contentType: 'application/json; charset=utf-8',
-            success: function (response) {
-                $.each(response, function (key, value) {
-                    var my_item = [];
-                    my_item.key = key;
-                    my_item.value = value;
-                    my_columns.push(my_item);
-                });
-                //return my_columns;
-            }
-        });
-       // alert(my_columns);
-        // Get form
-        $.ajax({
-            type: "POST",
-            // enctype: 'multipart/form-data',
-
-            url: "/api/getjSONData",
-            //data: JSON.stringify(""),
-            dataType: "json",
-            processData: true,
-            contentType: false,
-            cache: false,
-            timeout: 600000,
-            success: function (dataSet) {
-
-                var my_columns = [];
-
-                $.each(dataSet[1], function (key, value) {
-                    var my_item = {};
-                    my_item.data = key;
-                    my_item.title = key;
-                    my_columns.push(my_item);
-                });
-
-                $('#example').DataTable({
-                    columns: my_columns,
-                    //serverSide: true,
-                    //processing: true,
-                    //paging: true,
-                    searching: true,
-                    data: dataSet[0]
-                });
-
-                console.log("SUCCESS : ", dataSet);
-            },
-            error: function (e) {
-
-               // $("#result").text(e.responseText);
-                console.log("ERROR : ", e);
-
-            }
-        });
-
-
-    }
-
-
+    console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+});
 </script>
 
 </body>
