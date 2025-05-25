@@ -20,102 +20,126 @@
             src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.js"></script>
     <script type="text/javascript"
             src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
-<!--    <script type="text/javascript"
-            src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js"></script>-->
+    <!--    <script type="text/javascript"
+                src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js"></script>-->
+    <style type="text/css">
+        .button-submit {
+            background-color: #04AA6D; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        .center {
+            margin: auto;
+            width: 100%;
+            border: 2px solid green;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+<div class="center">
+    <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
 
-<h1>Fiserv BlackData Application</h1>
-<h1>DataTable</h1>
-
-<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
-    <input type="text" name="query" id="query" placeholder="SQL Query" width="300" height="300"/><br/><br/>
-    <input type="text" name="numberOfResults" id="numberOfResults" placeholder="Number of Results [LIMIT]"/><br/><br/>
-    <input type="submit" value="Submit" id="btnSubmit"/>
-</form>
+    <form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+        <table align="center">
+            <tr >
+                <td valign="top"><textarea id="query" name="query" placeholder="Snowflake SQL Query" rows="8" cols="90">Snowflake SQL Query</textarea></td>
+                <td valign="top">
+                <input type="text" id="numberOfResults" name="numberOfResults" width="100%"
+                       height="äuto" placeholder="Number of Results: LIMIT"><font color="blue">Optional</font></input><br/></td>
+                <td valign="top"><input type="button" class="button-submit" id="btnSubmit" name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
+            </tr>
+        </table>
+        <!--<input type="text" name="query" id="query" placeholder="SQL Query" width="300" height="300"/><br/><br/>
+        <input type="text" name="numberOfResults" id="numberOfResults" placeholder="Number of Results [LIMIT]"/><br/><br/>
+        <input type="submit" value="Submit" id="btnSubmit"/>-->
+    </form>
+</div>
 
 <pre>
-    <table id="example" class="display nowrap" cellspacing="0" width="100%" height="auto">
+    <table id="example" class="display nowrap cell-border compact hover order-column row-border stripe"
+           cellspacing="0" width="100%" height="auto">
     </table>
 </pre>
-
 <script type="text/javascript">
-        function submitQueryAndDataTableResults() {
-            var data = [];
-            var myItem = [];
-            myItem.key = "query";
-            myItem.value = $("#query").val();
-            data.push(myItem);
-            var myItemSec = [];
-            myItemSec.key = "numberOfResults";
-            myItemSec.value = $("#numberOfResults").val();
-            data.push(myItemSec);
-            $("#btnSubmit").prop("disabled", true);
-            var dataObject = [];
-            $.ajax({
-                type: "POST",
-                url: "/fiserv/white-data/apis/execute-query/results",
-                dataType: "json",
-                data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
-                contentType: 'application/json; charset=utf-8',
-                success: function (response) {
-                    dataObject = eval(response);
-                    new DataTable('#example', {
-                        "searching": true,
-                        columnDefs:    [
-                            { className: "dt-body-left", targets: "_all" },
-                            { className: "dt-head-left", targets: "_all" },
-                        ],
-                        columns: dataObject.headers,
+    function submitQueryAndDataTableResults() {
+        $("#btnSubmit").prop("background-color", "Blue");
+        $("#btnSubmit").prop("disabled", true);
+        var dataObject = [];
+        $.ajax({
+            type: "POST",
+            url: "/fiserv/white-data/apis/execute-query/results",
+            dataType: "json",
+            data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                dataObject = eval(response);
+                new DataTable('#example', {
+                    searching: true,
+                    columnDefs: [
+                        {className: "dt-body-left", targets: "_all"},
+                        {className: "dt-head-left", targets: "_all"},
+                    ],
+                    columns: dataObject.headers,
+                    dataType: "json",
+                    //processing: true,
+                    serverSide: true,
+                    cache: false,
+                    timeout: 600000,
+                    //responsive: true,
+                    layout: {
+                        topStart: null,
+                        topEnd: 'paging'
+                    },
+                    /*dom: 'Bfrtip',
+                    buttons: [
+                        'colvis',
+                        'excel',
+                        'print'
+                    ],*/
+                    //scrollCollapse: true,
+                    //ordering: false,
+                    scroller: true,
+                    scrollY: 400,
+                    paging: true,
+                    ajax: {
+                        url: '/fiserv/white-data/apis/getQueryData',
+                        contentType: 'application/json',
                         dataType: "json",
-                        processing: true,
-                        serverSide: true,
-                        cache: false,
-                        timeout: 600000,
-                        //responsive: true,
-                        layout: {
-                            topStart: null,
-                            topEnd: 'paging'
+                        type: 'POST',
+                        data: function (data, callback, settings) {
+                            setTimeout(() => {
+                                callback({
+                                    draw: data.draw,
+                                    data: data.data,
+                                    recordsTotal: data.recordsTotal,
+                                    recordsFiltered: data.recordsFiltered
+                                });
+                            }, 150);
                         },
-                        dom: 'Bfrtip',
-                        buttons: [
-                            'colvis',
-                            'excel',
-                            'print'
-                        ],
-                        scrollCollapse: true,
-                        ordering: false,
-                        scroller: true,
-                        scrollY: 200,
-                        paging: true,
-                        ajax: {
-                            url: '/fiserv/white-data/apis/getQueryData',
-                            contentType: 'application/json',
-                            dataType: "json",
-                            type: 'POST',
-                            data: function (data, callback, settings) {
-                                setTimeout(() => {
-                                    callback({
-                                        draw: data.draw,
-                                        data: data.data,
-                                        recordsTotal: data.recordsTotal,
-                                        recordsFiltered: data.recordsFiltered
-                                    });
-                                }, 150);
-                            },
-                            processData: false
-                        }
-                    });
-                }
-            });
-            console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
-        }
-        $(document).ready(function () {
-            $("#btnSubmit").click(function (event) {
-                event.preventDefault();
-                submitQueryAndDataTableResults();
-            });
+                    //    processData: true
+                    }
+                });
+            }
         });
+        console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+        $("#btnSubmit").prop("disabled", false);
+        $("#btnSubmit").prop("background-color", "Blue");
+    }
+
+    $(document).ready(function () {
+        $("#btnSubmit").click(function (event) {
+            event.preventDefault();
+            submitQueryAndDataTableResults();
+        });
+    });
 
 </script>
 
