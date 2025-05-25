@@ -50,14 +50,12 @@ public class RestUploadController {
         }
         int length = intermediateStr.length();
         String finalString = String.format("[ %s ]", intermediateStr.substring(0, length - 1));
-        System.out.println(finalString);
         return finalString;
     }
     @PostMapping("/getQueryData")
     public @ResponseBody String getQueryData() {
         Integer integer = preFilledDataMap.keySet().stream().max(Integer::compareTo).get();
         String resultStre = preFilledDataMap.get(integer);
-        //System.out.println(resultStre);
         return resultStre;
     }
 
@@ -89,7 +87,6 @@ public class RestUploadController {
             resultDataList.add(finalString);
         }
         String finalDataStr = String.format("{ \"headers\" :  %s , \"queryData\" :  %s  }", resultDataList.get(0), resultDataList.get(1));
-        //System.out.println(finalDataStr);
         preFilledDataMap.put(atomicInteger.getAndIncrement(), resultDataList.get(1));
         return finalDataStr;
     }
@@ -110,7 +107,6 @@ public class RestUploadController {
         String dataJsonStringVal = new GsonBuilder().create().toJson(valuesToSend);
         String finalString = String.format("{ \"draw\" : \"%s\", \"recordsTotal\" : %s, \"recordsFiltered\" : \"%s\", \"data\": %s }",
                 1, wrapped.getDataList().size(), wrapped.getDataList().size(), dataJsonStringVal);
-        System.out.println(finalString);
         return finalString;
     }
 
