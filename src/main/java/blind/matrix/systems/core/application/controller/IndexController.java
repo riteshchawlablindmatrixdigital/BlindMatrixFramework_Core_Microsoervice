@@ -1,19 +1,40 @@
 package blind.matrix.systems.core.application.controller;
 
+import blind.matrix.systems.core.application.dtos.RequestData;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class IndexController {
 
-    @GetMapping("/index")
-    public String index() {
-        return "index";
+    @GetMapping("/basic-data")
+    public ModelAndView showForm() {
+        return new ModelAndView("basic-data", "requestData", new RequestData());
     }
 
-    @GetMapping("/datatable-for-huge-data")
-    public String dataTableForHugeData() {
-        return "datatable-for-huge-data";
+    @PostMapping("/basic-data-details")
+    public String indexNext(@ModelAttribute("requestData") RequestData requestData,
+                                  BindingResult result, ModelMap model) {
+        model.addAttribute("query", requestData.getQuery());
+        model.addAttribute("numberOfResults", requestData.getNumberOfResults());
+        return "basic-data";
     }
 
+    @GetMapping("/huge-data")
+    public ModelAndView dataTableForHugeData() {
+        return new ModelAndView("huge-data", "requestData", new RequestData());
+    }
+
+    @PostMapping("/huge-data-details")
+    public String hugeDataSolution(@ModelAttribute("requestData") RequestData requestData,
+                            BindingResult result, ModelMap model) {
+        model.addAttribute("query", requestData.getQuery());
+        model.addAttribute("numberOfResults", requestData.getNumberOfResults());
+        return "huge-data";
+    }
 }

@@ -2,7 +2,9 @@ package blind.matrix.systems.core.application.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,6 +29,14 @@ public class BlindMatrixConfig {
         dataSource.setUrl(jdbcUrl);
         return dataSource;
     }*/
+
+    @Bean
+    @Description("Spring Message Resolver")
+    public ResourceBundleMessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("messages");
+        return messageSource;
+    }
 
     @Bean
     @Scope("prototype")

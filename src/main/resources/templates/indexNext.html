@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -27,11 +28,12 @@
         <table align="center">
             <tr >
                 <td valign="top">
-                    <form:textarea id="query" name="query" rows="8" cols="90">Snowflake SQL Query:</form:textarea></td>
+                    <label for="query">Snowflake SQL Query:</label>
+                    <textarea id="query" name="query" rows="8" cols="90"></textarea></td>
                 <td valign="top">
-                    <form:input type="text" id="numberOfResults" name="numberOfResults" width="100%"
-                           height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></form:input><br/></td>
-                        <td valign="top"><input type="submit" value="Submit" class="button-submit" id="btnSubmit" name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
+                    <input type="text" id="numberOfResults" name="numberOfResults" width="100%"
+                           height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></input><br/></td>
+                <td valign="top"><input type="button" class="button-submit" id="btnSubmit" name="btnSubmit" onClick="submitQueryAndDataTableResults()" value="Submit Query - Get Snowflake Data"/></a></td>
             </tr>
         </table>
     </form>
@@ -44,8 +46,13 @@
 </pre>
 
 <script type="text/javascript">
+    var datatable;
     function submitQueryAndDataTableResults() {
         $("#btnSubmit").prop("disabled", true);
+        if(datatable) {
+            $("#example").dataTable().Destroy();
+            $("#example").empty();
+        }
         var dataObject = [];
         $.ajax({
             type: "POST",
@@ -56,7 +63,8 @@
             processing: true,
             success: function (response) {
                 dataObject = eval(response);
-                new DataTable('#example', {
+                dataObject = eval(response);
+                datatable = new DataTable('#example', {
                     searching: true,
                     columnDefs: [
                         {className: "dt-body-left", targets: "_all"},
@@ -69,15 +77,15 @@
                     scrollY: true,
                     scrollX: true,
                     paging: true,
-                    processing: true,
+                    "bDestroy": true,
                     ajax: {
                         url: '/fiserv/white-data/apis/api/getData',
                         contentType: 'application/json',
                         dataType: "json",
-                        type: 'POST',
-                        processData: true
+                        type: 'POST'
                     }
                 });
+                $("#btnSubmit").prop("background-color", "#04AA6D");
                 $("#btnSubmit").prop("disabled", false);
             }
         });
