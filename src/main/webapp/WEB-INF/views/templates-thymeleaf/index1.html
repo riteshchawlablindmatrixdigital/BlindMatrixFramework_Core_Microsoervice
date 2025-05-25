@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
+    <script type="text/javascript"
+            src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+</head>
+<body>
+
+<h1>Blind Matrix Software</h1>
+<h1>DataTable</h1>
+<pre>
+    <table id="example" class="display nowrap" cellspacing="0" width="100%" height="auto">
+    </table>
+</pre>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    var dataObject = [];
+    $.ajax({
+        type: "POST",
+        url: "/fiserv/white-data/apis/api/getDataColumns",
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            dataObject = eval(response);
+            new DataTable('#example', {
+                columns: dataObject,
+                searching: true,
+                dataType: "json",
+                processing: true,
+                serverSide: true,
+                cache: false,
+                timeout: 600000,
+                layout: {
+                    topStart: null,
+                    topEnd: 'paging'
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    'colvis',
+                    'excel',
+                    'print'
+                ],
+                scrollY: true,
+                scrollX: true,
+                paging: true,
+                ajax: {
+                    url: '/fiserv/white-data/apis/api/getData',
+                    contentType: 'application/json',
+                    dataType: "json",
+                    type: 'POST'
+                }
+            });
+        }
+    });
+    console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+});
+</script>
+
+</body>
+</html>
