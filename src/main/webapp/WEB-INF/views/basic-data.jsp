@@ -25,11 +25,11 @@
 </head>
 <body>
 <div class="center">
-    <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
-<%--<h2>${requestData.query}</h2>
-    <h2>${requestData.numberOfResults}</h2>--%>
+    <h2><font color="blue">Blank Matrix Data Systems Application :: Snowflake Data Reports</font></h2>
+<%--<h2>${blankMatrixSystemsRequestData.query}</h2>
+    <h2>${blankMatrixSystemsRequestData.numberOfResults}</h2>--%>
     <form:form id = "theFormSpring" method="POST"
-               action="/basic-data-details" modelAttribute="requestData">
+               action="/basic-data-details" modelAttribute="blankMatrixSystemsRequestData">
         <table align="center">
             <tr>
                 <td valign="top">
@@ -61,7 +61,7 @@
         $('#errorDiv').innerHTML = "";
         $.ajax({
             type: "POST",
-            url: "/fiserv/white-data/apis/execute-query/results",
+            url: "/blank-matrix-systems/apis/execute-query/results",
             dataType: "json",
             data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
             contentType: 'application/json; charset=utf-8',
@@ -95,12 +95,12 @@
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
     }
-    //console.log('${requestData.query}');
+    //console.log('${blankMatrixSystemsRequestData.query}');
     $(document).ready(function () {
        $("#theForm").click(function (event) {
            document.getElementById("theFormSpring").submit();
         });
-       if('${requestData.query}' != "") {
+       if('${blankMatrixSystemsRequestData.query}' != "") {
            $('#loader').shCircleLoader({
                namespace: "myns",
                color: "green",
