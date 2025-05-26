@@ -2,13 +2,13 @@
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
-    <link href="css/jquery.shCircleLoader.css" rel="stylesheet"/>
+    <link href="css/jquery.shCircleLoader.css?${a}" rel="stylesheet"/>
     <script type="text/javascript"
             src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script type="text/javascript"
             src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
     <script type="text/javascript"
-            src="js/jquery.shCircleLoader-min.js"></script>
+            src="js/jquery.shCircleLoader-min.js?${a}"></script>
 
     <style type="text/css">
         .center {
@@ -80,15 +80,10 @@
                     scrollX: true,
                     paging: true,
                     processing: true,
-                    ajax: {
-                        url: '/fiserv/white-data/apis/api/getData',
-                        contentType: 'application/json',
-                        dataType: "json",
-                        type: 'POST',
-                        processData: true
-                    }
+                    data: dataObject.queryData.data
                 });
                 $("#btnSubmit").prop("disabled", false);
+                $('#loader').css('display', 'none');
             }
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
@@ -101,11 +96,11 @@
        if('${requestData.query}' != "") {
            $('#loader').shCircleLoader({
                namespace: "myns",
-               color: "transparent",
+               color: "green",
                dotsRadius: 15
            });
            submitQueryAndDataTableResults();
-
+           //$('#loader').css('display', 'none');
         }
     });
 

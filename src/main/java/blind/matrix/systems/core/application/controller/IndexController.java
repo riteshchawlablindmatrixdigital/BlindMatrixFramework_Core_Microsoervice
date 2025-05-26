@@ -23,6 +23,7 @@ public class IndexController {
                                   BindingResult result, ModelMap model) {
         model.addAttribute("query", requestData.getQuery());
         model.addAttribute("numberOfResults", requestData.getNumberOfResults());
+        model.addAttribute("a", Math.random());
         return "basic-data";
     }
 

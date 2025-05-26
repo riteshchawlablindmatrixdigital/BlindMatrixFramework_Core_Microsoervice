@@ -92,8 +92,8 @@ public class RestUploadController {
     }
 
     @PostMapping("/api/getData")
-    public @ResponseBody String getData() throws JsonProcessingException {
-        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData(SnowflakeJDBC.selectSQL, "20000");
+    public @ResponseBody String getData(@RequestBody RequestData requestData) throws JsonProcessingException {
+        SnowflakeJDBC.DataWrapper wrapped = snowflakeJDBC.getData(requestData.getQuery(), requestData.getNumberOfResults());
         List<List<String>> valuesToSend = new ArrayList<>();
         List<Map<String, Object>> allData = wrapped.getDataList();
         for(Map<String, Object> mapObj : allData) {
