@@ -47,6 +47,7 @@
     </form:form>
 </div>
 <div id="loader"></div>
+<div id="errorDiv"><font color="red">${error}</font></div>
 <pre>
     <table id="example" class="display nowrap cell-border compact hover order-column row-border stripe"
            cellspacing="0" width="100%" height="auto">
@@ -57,6 +58,7 @@
     function submitQueryAndDataTableResults() {
         $("#btnSubmit").prop("disabled", true);
         var dataObject = [];
+        $('#errorDiv').innerHTML = "";
         $.ajax({
             type: "POST",
             url: "/fiserv/white-data/apis/execute-query/results",
@@ -84,6 +86,11 @@
                 });
                 $("#btnSubmit").prop("disabled", false);
                 $('#loader').css('display', 'none');
+            },
+            error: function (error) {
+                $('#loader').css('display', 'none');
+                console.log(error.status + ':' + error.statusText,error.responseText);
+                $('#errorDiv').innerHTML= "<font color=\"red\">Error exists in the SQL Query<br/>", error.status + ':' + error.statusText, "<br/>Error:" + data.responseText + "</font>";
             }
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
