@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!--<meta name="viewport" content="width=device-width" />-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.4.3/css/scroller.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/keytable/2.12.1/css/keyTable.dataTables.css">
+    <!--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.dataTables.min.css">-->
+
+
+    <script type="text/javascript"
+            src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/scroller/2.4.3/js/dataTables.scroller.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/scroller/2.4.3/js/scroller.dataTables.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/keytable/2.12.1/js/keyTable.dataTables.js"></script>
+<!--    <script type="text/javascript"
+            src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js"></script>-->
+</head>
+<body>
+
+<h1>Fiserv BlackData Application</h1>
+<h1>DataTable</h1>
+
+<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+    <input type="text" name="query" id="query" placeholder="SQL Query" width="300" height="300"/><br/><br/>
+    <input type="text" name="numberOfResults" id="numberOfResults" placeholder="Number of Results [LIMIT]"/><br/><br/>
+    <input type="submit" value="Submit" id="btnSubmit"/>
+</form>
+
+<pre>
+    <table id="example" class="display nowrap" cellspacing="0" width="100%" height="auto">
+    </table>
+</pre>
+
+<script type="text/javascript">
+        function submitQueryAndDataTableResults() {
+            var data = [];
+            var myItem = [];
+            myItem.key = "query";
+            myItem.value = $("#query").val();
+            data.push(myItem);
+            var myItemSec = [];
+            myItemSec.key = "numberOfResults";
+            myItemSec.value = $("#numberOfResults").val();
+            data.push(myItemSec);
+            $("#btnSubmit").prop("disabled", true);
+            var dataObject = [];
+            $.ajax({
+                type: "POST",
+                url: "/fiserv/white-data/apis/execute-query/results",
+                dataType: "json",
+                data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    dataObject = eval(response);
+                    new DataTable('#example', {
+                        "searching": true,
+                        columnDefs:    [
+                            { className: "dt-body-left", targets: "_all" },
+                            { className: "dt-head-left", targets: "_all" },
+                        ],
+                        columns: dataObject.headers,
+                        dataType: "json",
+                        processing: true,
+                        serverSide: true,
+                        cache: false,
+                        timeout: 600000,
+                        //responsive: true,
+                        layout: {
+                            topStart: null,
+                            topEnd: 'paging'
+                        },
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'colvis',
+                            'excel',
+                            'print'
+                        ],
+                        scrollCollapse: true,
+                        ordering: false,
+                        scroller: true,
+                        scrollY: 200,
+                        paging: true,
+                        ajax: {
+                            url: '/fiserv/white-data/apis/getQueryData',
+                            contentType: 'application/json',
+                            dataType: "json",
+                            type: 'POST',
+                            data: function (data, callback, settings) {
+                                setTimeout(() => {
+                                    callback({
+                                        draw: data.draw,
+                                        data: data.data,
+                                        recordsTotal: data.recordsTotal,
+                                        recordsFiltered: data.recordsFiltered
+                                    });
+                                }, 150);
+                            },
+                            processData: false
+                        }
+                    });
+                }
+            });
+            console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+        }
+        $(document).ready(function () {
+            $("#btnSubmit").click(function (event) {
+                event.preventDefault();
+                submitQueryAndDataTableResults();
+            });
+        });
+
+</script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
+<!DOCTYPE html>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<html xmlns:th="https://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <!--<meta name="viewport" content="width=device-width" />-->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
@@ -47,15 +48,14 @@
         <table align="center">
             <tr>
                 <td valign="top">
-                    <label path="query" title="Snowflake SQL Query:"/>
-                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90"/>
+                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90">Snowflake SQL Query:</form:textarea>
                 </td>
                 <td valign="top">
-                    <form:label path="numberOfResults" title="Number of Results: LIMIT Optional"/>
                     <form:input type="text" path="numberOfResults"  value="numberOfResults" id="numberOfResults" name="numberOfResults" width="100%"
-                                height="äuto"></form:input>
+                                height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></form:input>
                     <br/></td>
-                <td valign="top"><input type="submit" class="button-submit" value="Submit Query - Get Snowflake Data"/></td>
+                <td valign="top"><input type="submit" class="button-submit" id="btnSubmit"
+                                        name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
             </tr>
         </table>
     </form:form>
@@ -118,6 +118,7 @@
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
         $("#btnSubmit").prop("disabled", false);
+        $("#btnSubmit").prop("background-color", "Blue");
     }
 
     $(document).ready(function () {

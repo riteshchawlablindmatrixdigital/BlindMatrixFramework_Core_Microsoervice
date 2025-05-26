@@ -14,7 +14,8 @@ public class IndexController {
 
     @GetMapping("/basic-data")
     public ModelAndView showForm() {
-        return new ModelAndView("basic-data", "requestData", new RequestData());
+        RequestData requestData = new RequestData();
+        return new ModelAndView("basic-data", "requestData", requestData);
     }
 
     @PostMapping("/basic-data-details")

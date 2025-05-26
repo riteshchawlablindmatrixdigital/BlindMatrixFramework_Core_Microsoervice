@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -22,24 +21,20 @@
 <body>
 <div class="center">
     <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
-    <h2>${requestData.query}</h2>
-    <h2>${requestData.numberOfResults}</h2>
+
     <form:form method="POST"
-               action="/basic-data-details" modelAttribute="requestData">
+               action="/spring-mvc-xml/addEmployee" modelAttribute="employee">
         <table align="center">
-            <tr>
+            <tr >
                 <td valign="top">
-                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90">Snowflake SQL Query:</form:textarea>
-                </td>
+                    <form:textarea id="query" name="query" rows="8" cols="90">Snowflake SQL Query:</form:textarea></td>
                 <td valign="top">
-                    <form:input type="text" path="numberOfResults"  value="numberOfResults" id="numberOfResults" name="numberOfResults" width="100%"
-                                height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></form:input>
-                    <br/></td>
-                <td valign="top"><input type="submit" class="button-submit" id="btnSubmit"
-                                        name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
+                    <form:input type="text" id="numberOfResults" name="numberOfResults" width="100%"
+                           height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></form:input><br/></td>
+                        <td valign="top"><input type="submit" value="Submit" class="button-submit" id="btnSubmit" name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
             </tr>
         </table>
-    </form:form>
+    </form>
 </div>
 
 <pre>
@@ -61,7 +56,7 @@
             processing: true,
             success: function (response) {
                 dataObject = eval(response);
-                $('#example').dataTable({
+                new DataTable('#example', {
                     searching: true,
                     columnDefs: [
                         {className: "dt-body-left", targets: "_all"},
@@ -88,14 +83,13 @@
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
     }
-    console.log('${requestData.query}');
+
     $(document).ready(function () {
         $("#btnSubmit").click(function (event) {
             event.preventDefault();
             submitQueryAndDataTableResults();
         });
     });
-
 </script>
 
 </body>

@@ -1,14 +1,13 @@
+<!DOCTYPE html>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<html xmlns:th="https://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
-    <link href="css/jquery.shCircleLoader.css" rel="stylesheet"/>
     <script type="text/javascript"
             src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script type="text/javascript"
             src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
-    <script type="text/javascript"
-            src="js/jquery.shCircleLoader-min.js"></script>
+    <script src="jquery.progressScroll.min.js"></script>
 
     <style type="text/css">
         .center {
@@ -18,35 +17,28 @@
             padding: 10px;
             text-align: center;
         }
-        .myns > div {
-            box-shadow: 0 0 6px black, inset 0 0 6px black;
-        }
     </style>
 </head>
 <body>
 <div class="center">
     <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
-<%--<h2>${requestData.query}</h2>
-    <h2>${requestData.numberOfResults}</h2>--%>
-    <form:form id = "theFormSpring" method="POST"
-               action="/basic-data-details" modelAttribute="requestData">
+
+    <form:form method="POST"
+               action="/spring-mvc-xml/addEmployee" modelAttribute="employee">
         <table align="center">
-            <tr>
+            <tr >
                 <td valign="top">
-                    <font color="blue">Snowflake SQL Query:</font>
-                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90"/>
-                </td>
+                    <label for="query">Snowflake SQL Query:</label>
+                    <textarea id="query" name="query" rows="8" cols="90"></textarea></td>
                 <td valign="top">
-                    <font color="blue">Number of Results: LIMIT Optional</font>
-                    <form:input type="text" path="numberOfResults"  id="numberOfResults" name="numberOfResults" width="100%"
-                                height="äuto"></form:input>
-                    <br/></td>
-                <td valign="top"><input type="submit" id = "theForm" name="theForm" class="button-submit" value="Submit Query - Get Snowflake Data"/></td>
+                    <input type="text" id="numberOfResults" name="numberOfResults" width="100%"
+                           height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></input><br/></td>
+                <td valign="top"><input type="button" class="button-submit" id="btnSubmit" name="btnSubmit" onClick="submitQueryAndDataTableResults()" value="Submit Query - Get Snowflake Data"/></a></td>
             </tr>
         </table>
-    </form:form>
+    </form>
 </div>
-<div id="loader"></div>
+
 <pre>
     <table id="example" class="display nowrap cell-border compact hover order-column row-border stripe"
            cellspacing="0" width="100%" height="auto">
@@ -54,8 +46,13 @@
 </pre>
 
 <script type="text/javascript">
+    var datatable;
     function submitQueryAndDataTableResults() {
         $("#btnSubmit").prop("disabled", true);
+        if(datatable) {
+            $("#example").dataTable().Destroy();
+            $("#example").empty();
+        }
         var dataObject = [];
         $.ajax({
             type: "POST",
@@ -66,7 +63,8 @@
             processing: true,
             success: function (response) {
                 dataObject = eval(response);
-                $('#example').dataTable({
+                dataObject = eval(response);
+                datatable = new DataTable('#example', {
                     searching: true,
                     columnDefs: [
                         {className: "dt-body-left", targets: "_all"},
@@ -79,36 +77,27 @@
                     scrollY: true,
                     scrollX: true,
                     paging: true,
-                    processing: true,
+                    "bDestroy": true,
                     ajax: {
                         url: '/fiserv/white-data/apis/api/getData',
                         contentType: 'application/json',
                         dataType: "json",
-                        type: 'POST',
-                        processData: true
+                        type: 'POST'
                     }
                 });
+                $("#btnSubmit").prop("background-color", "#04AA6D");
                 $("#btnSubmit").prop("disabled", false);
             }
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
     }
-    //console.log('${requestData.query}');
+
     $(document).ready(function () {
-       $("#theForm").click(function (event) {
-           document.getElementById("theFormSpring").submit();
+        $("#btnSubmit").click(function (event) {
+            event.preventDefault();
+            submitQueryAndDataTableResults();
         });
-       if('${requestData.query}' != "") {
-           $('#loader').shCircleLoader({
-               namespace: "myns",
-               color: "transparent",
-               dotsRadius: 15
-           });
-           submitQueryAndDataTableResults();
-
-        }
     });
-
 </script>
 
 </body>
