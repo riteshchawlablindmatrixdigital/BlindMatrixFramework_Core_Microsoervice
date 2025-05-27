@@ -40,11 +40,11 @@
 </head>
 <body>
 <div class="center">
-    <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
-    <h2>${requestData.query}</h2>
-    <h2>${requestData.numberOfResults}</h2>
+    <h2><font color="blue">Blank Matrix Data Systems Application :: Snowflake Data Reports</font></h2>
+    <h2>${blankMatrixSystemsRequestData.query}</h2>
+    <h2>${blankMatrixSystemsRequestData.numberOfResults}</h2>
     <form:form method="POST"
-               action="/huge-data-details" modelAttribute="requestData">
+               action="/huge-data-details" modelAttribute="blankMatrixSystemsRequestData">
         <table align="center">
             <tr>
                 <td valign="top">
@@ -66,13 +66,13 @@
     </table>
 </pre>
 <script type="text/javascript">
-    console.log('${requestData.query}');
+    console.log('${blankMatrixSystemsRequestData.query}');
     function submitQueryAndDataTableResults() {
         $("#btnSubmit").prop("disabled", true);
         var dataObject = [];
         $.ajax({
             type: "POST",
-            url: "/fiserv/white-data/apis/execute-query/results",
+            url: "/blank-matrix-systems/apis/execute-query/results",
             dataType: "json",
             data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
             contentType: 'application/json; charset=utf-8',
@@ -98,7 +98,7 @@
                     scrollY: 400,
                     paging: true,
                     ajax: {
-                        url: '/fiserv/white-data/apis/getQueryData',
+                        url: '/blank-matrix-systems/apis/getQueryData',
                         contentType: 'application/json',
                         dataType: "json",
                         type: 'POST',

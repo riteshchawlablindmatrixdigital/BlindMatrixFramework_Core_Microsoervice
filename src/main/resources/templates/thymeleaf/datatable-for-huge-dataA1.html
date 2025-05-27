@@ -25,8 +25,7 @@
 </head>
 <body>
 
-<h1>Fiserv BlackData Application</h1>
-<h1>DataTable</h1>
+<h1>Blank Matrix Data Systems Application</h1>
 
 <form method="POST" enctype="multipart/form-data" id="fileUploadForm">
     <input type="text" name="query" id="query" placeholder="SQL Query" width="300" height="300"/><br/><br/>
@@ -54,7 +53,7 @@
             var dataObject = [];
             $.ajax({
                 type: "POST",
-                url: "/fiserv/white-data/apis/execute-query/results",
+                url: "/blank-matrix-systems/apis/execute-query/results",
                 dataType: "json",
                 data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
                 contentType: 'application/json; charset=utf-8',
@@ -89,7 +88,7 @@
                         scrollY: 200,
                         paging: true,
                         ajax: {
-                            url: '/fiserv/white-data/apis/getQueryData',
+                            url: '/blank-matrix-systems/apis/getQueryData',
                             contentType: 'application/json',
                             dataType: "json",
                             type: 'POST',

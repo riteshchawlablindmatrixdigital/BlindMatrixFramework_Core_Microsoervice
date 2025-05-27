@@ -8,12 +8,12 @@
         <version>3.4.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>blind.matrix.systems</groupId>
-    <artifactId>core-application</artifactId>
+    <groupId>blank.matrix.systems.microservices</groupId>
+    <artifactId>blank-snowflake-datatables</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>BlindMatrixFrameworkCoreSystemsAppn</name>
-    <description>BlindMatrixFrameworkCoreSystemsAppn</description>
+    <name>BlankMatrixSystemsCoreMicroservice</name>
+    <description>BlankMatrixSystemsCoreMicroservice</description>
     <url/>
     <licenses>
         <license/>

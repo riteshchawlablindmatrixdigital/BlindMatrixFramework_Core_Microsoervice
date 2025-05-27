@@ -1,5 +1,4 @@
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<html xmlns:th="https://www.thymeleaf.org">
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <head>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
     <link href="css/jquery.shCircleLoader.css?${a}" rel="stylesheet"/>
@@ -18,6 +17,7 @@
             padding: 10px;
             text-align: center;
         }
+
         .myns > div {
             box-shadow: 0 0 6px black, inset 0 0 6px black;
         }
@@ -25,11 +25,11 @@
 </head>
 <body>
 <div class="center">
-    <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
-<%--<h2>${requestData.query}</h2>
-    <h2>${requestData.numberOfResults}</h2>--%>
-    <form:form id = "theFormSpring" method="POST"
-               action="/basic-data-details" modelAttribute="requestData">
+    <h2><font color="blue">Blank Matrix Data Systems Application :: Snowflake Data Reports</font></h2>
+    <%--<h2>${blankMatrixSystemsRequestData.query}</h2>
+        <h2>${blankMatrixSystemsRequestData.numberOfResults}</h2>--%>
+    <form:form id="theFormSpring" method="POST"
+               action="/basic-data-details" modelAttribute="blankMatrixSystemsRequestData">
         <table align="center">
             <tr>
                 <td valign="top">
@@ -38,79 +38,69 @@
                 </td>
                 <td valign="top">
                     <font color="blue">Number of Results: LIMIT Optional</font>
-                    <form:input type="text" path="numberOfResults"  id="numberOfResults" name="numberOfResults" width="100%"
+                    <form:input type="text" path="numberOfResults" id="numberOfResults" name="numberOfResults"
+                                width="100%"
                                 height="äuto"></form:input>
                     <br/></td>
-                <td valign="top"><input type="submit" id = "theForm" name="theForm" class="button-submit" value="Submit Query - Get Snowflake Data"/></td>
+                <td valign="top"><input type="submit" id="theForm" name="theForm" class="button-submit"
+                                        value="Submit Query - Get Snowflake Data"/></td>
             </tr>
         </table>
     </form:form>
 </div>
 <div id="loader"></div>
 <div id="errorDiv"><font color="red">${error}</font></div>
-<pre>
+<div id="resultsDiv"><font color="green">${NoResultsFound}</font></div>
+<div>
     <table id="example" class="display nowrap cell-border compact hover order-column row-border stripe"
            cellspacing="0" width="100%" height="auto">
     </table>
-</pre>
+</div>
 
 <script type="text/javascript">
     function submitQueryAndDataTableResults() {
-        $("#btnSubmit").prop("disabled", true);
-        var dataObject = [];
+        $("#theForm").prop("disabled", true);
         $('#errorDiv').innerHTML = "";
-        $.ajax({
-            type: "POST",
-            url: "/fiserv/white-data/apis/execute-query/results",
+        $('#resultsDiv').innerHTML = "";
+        var dataObject = eval(${resultData});
+        $('#example').dataTable({
+            searching: true,
+            columnDefs: [
+                {width: "50px", targets: "_all"},
+                {className: "dt-body-left", targets: "_all"},
+                {className: "dt-head-left", targets: "_all"}
+            ],
+            columns: dataObject.headers,
             dataType: "json",
-            data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
-            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            timeout: 600000,
+            scrollY: true,
+            scrollX: true,
+            paging: true,
             processing: true,
-            success: function (response) {
-                dataObject = eval(response);
-                $('#example').dataTable({
-                    searching: true,
-                    columnDefs: [
-                        {className: "dt-body-left", targets: "_all"},
-                        {className: "dt-head-left", targets: "_all"},
-                    ],
-                    columns: dataObject.headers,
-                    dataType: "json",
-                    cache: false,
-                    timeout: 600000,
-                    scrollY: true,
-                    scrollX: true,
-                    paging: true,
-                    processing: true,
-                    data: dataObject.queryData.data
-                });
-                $("#btnSubmit").prop("disabled", false);
-                $('#loader').css('display', 'none');
-            },
-            error: function (error) {
-                $('#loader').css('display', 'none');
-                console.log(error.status + ':' + error.statusText,error.responseText);
-                $('#errorDiv').innerHTML= "<font color=\"red\">Error exists in the SQL Query<br/>", error.status + ':' + error.statusText, "<br/>Error:" + data.responseText + "</font>";
-            }
+            processData: true,
+            data: dataObject.queryData.data
         });
-        console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+        $("#theForm").prop("disabled", false);
+        $('#loader').css('display', 'none');
     }
-    //console.log('${requestData.query}');
+    console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
+    console.log('${error}');
     $(document).ready(function () {
-       $("#theForm").click(function (event) {
-           document.getElementById("theFormSpring").submit();
+        $("#theForm").click(function (event) {
+            document.getElementById("theFormSpring").submit();
         });
-       if('${requestData.query}' != "") {
-           $('#loader').shCircleLoader({
-               namespace: "myns",
-               color: "green",
-               dotsRadius: 15
-           });
-           submitQueryAndDataTableResults();
-           //$('#loader').css('display', 'none');
+        $("#theForm").prop("disabled", true);
+        $('#loader').css('display', 'block');
+        $('#loader').shCircleLoader({clockwise: false});
+        if('${blankMatrixSystemsRequestData.query}' != "") {
+            if('${NoResultsFound}' != 'No Data Available for the Query') {
+                submitQueryAndDataTableResults();
+            }
         }
+        $("#theForm").prop("disabled", false);
+        $('#loader').css('display', 'none');
     });
-
 </script>
 
 </body>

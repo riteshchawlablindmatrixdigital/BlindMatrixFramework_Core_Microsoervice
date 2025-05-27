@@ -10,7 +10,6 @@
 <body>
 
 <h1>Blind Matrix Software</h1>
-<h1>DataTable</h1>
 <pre>
     <table id="example" class="display nowrap" cellspacing="0" width="100%" height="auto">
     </table>
@@ -21,7 +20,7 @@ $(document).ready(function () {
     var dataObject = [];
     $.ajax({
         type: "POST",
-        url: "/fiserv/white-data/apis/api/getDataColumns",
+        url: "/blank-matrix-systems/apis/api/getDataColumns",
         dataType: "json",
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
@@ -48,7 +47,7 @@ $(document).ready(function () {
                 scrollX: true,
                 paging: true,
                 ajax: {
-                    url: '/fiserv/white-data/apis/api/getData',
+                    url: '/blank-matrix-systems/apis/api/getData',
                     contentType: 'application/json',
                     dataType: "json",
                     type: 'POST'

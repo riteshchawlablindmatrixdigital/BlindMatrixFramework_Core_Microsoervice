@@ -1,13 +1,14 @@
-<!DOCTYPE html>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.css">
+    <link href="css/jquery.shCircleLoader.css?${a}" rel="stylesheet"/>
     <script type="text/javascript"
             src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script type="text/javascript"
             src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
-    <script src="jquery.progressScroll.min.js"></script>
+    <script type="text/javascript"
+            src="js/jquery.shCircleLoader-min.js?${a}"></script>
 
     <style type="text/css">
         .center {
@@ -17,31 +18,36 @@
             padding: 10px;
             text-align: center;
         }
+        .myns > div {
+            box-shadow: 0 0 6px black, inset 0 0 6px black;
+        }
     </style>
 </head>
 <body>
 <div class="center">
     <h2><font color="blue">Blank Matrix Data Systems Application :: Snowflake Data Reports</font></h2>
-    <h2>${blankMatrixSystemsRequestData.query}</h2>
-    <h2>${blankMatrixSystemsRequestData.numberOfResults}</h2>
-    <form:form method="POST"
+<%--<h2>${blankMatrixSystemsRequestData.query}</h2>
+    <h2>${blankMatrixSystemsRequestData.numberOfResults}</h2>--%>
+    <form:form id = "theFormSpring" method="POST"
                action="/basic-data-details" modelAttribute="blankMatrixSystemsRequestData">
         <table align="center">
             <tr>
                 <td valign="top">
-                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90">Snowflake SQL Query:</form:textarea>
+                    <font color="blue">Snowflake SQL Query:</font>
+                    <form:textarea id="query" path="query" value="query" name="query" rows="8" cols="90"/>
                 </td>
                 <td valign="top">
-                    <form:input type="text" path="numberOfResults"  value="numberOfResults" id="numberOfResults" name="numberOfResults" width="100%"
-                                height="äuto"><font color="blue">Number of Results: LIMIT Optional</font></form:input>
+                    <font color="blue">Number of Results: LIMIT Optional</font>
+                    <form:input type="text" path="numberOfResults"  id="numberOfResults" name="numberOfResults" width="100%"
+                                height="äuto"></form:input>
                     <br/></td>
-                <td valign="top"><input type="submit" class="button-submit" id="btnSubmit"
-                                        name="btnSubmit" value="Submit Query - Get Snowflake Data"/></a></td>
+                <td valign="top"><input type="submit" id = "theForm" name="theForm" class="button-submit" value="Submit Query - Get Snowflake Data"/></td>
             </tr>
         </table>
     </form:form>
 </div>
-
+<div id="loader"></div>
+<div id="errorDiv"><font color="red">${error}</font></div>
 <pre>
     <table id="example" class="display nowrap cell-border compact hover order-column row-border stripe"
            cellspacing="0" width="100%" height="auto">
@@ -50,8 +56,9 @@
 
 <script type="text/javascript">
     function submitQueryAndDataTableResults() {
-        $("#btnSubmit").prop("disabled", true);
+        $("#theForm").prop("disabled", true);
         var dataObject = [];
+        $('#errorDiv').innerHTML = "";
         $.ajax({
             type: "POST",
             url: "/blank-matrix-systems/apis/execute-query/results",
@@ -75,25 +82,33 @@
                     scrollX: true,
                     paging: true,
                     processing: true,
-                    ajax: {
-                        url: '/blank-matrix-systems/apis/api/getData',
-                        contentType: 'application/json',
-                        dataType: "json",
-                        type: 'POST',
-                        processData: true
-                    }
+                    data: dataObject.queryData.data
                 });
-                $("#btnSubmit").prop("disabled", false);
+                $("#theForm").prop("disabled", false);
+                $('#loader').css('display', 'none');
+            },
+            error: function (error) {
+                $('#loader').css('display', 'none');
+                console.log(error);
+                $('#errorDiv').innerHTML= "<font color=\"red\">Error exists in the SQL Query<br/>", error, "<br/>Error:" + error + "</font>";
             }
         });
         console.log('DTB DONE DTB !!!!!!!!!!!!!!!!!!!!!!!!!!!!  ::::  ');
     }
-    console.log('${blankMatrixSystemsRequestData.query}');
+    //console.log('${blankMatrixSystemsRequestData.query}');
     $(document).ready(function () {
-        $("#btnSubmit").click(function (event) {
-            event.preventDefault();
-            submitQueryAndDataTableResults();
+       $("#theForm").click(function (event) {
+           document.getElementById("theFormSpring").submit();
         });
+       if('${blankMatrixSystemsRequestData.query}' != "") {
+           $('#loader').shCircleLoader({
+               namespace: "myns",
+               color: "green",
+               dotsRadius: 15
+           });
+           submitQueryAndDataTableResults();
+           //$('#loader').css('display', 'none');
+        }
     });
 
 </script>

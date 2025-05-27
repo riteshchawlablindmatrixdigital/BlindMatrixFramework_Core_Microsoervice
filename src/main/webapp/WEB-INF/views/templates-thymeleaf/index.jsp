@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="center">
-    <h2><font color="blue">Fiserv WiseShip Data Application :: Snowflake Data Reports</font></h2>
+    <h2><font color="blue">Blank Matrix Data Systems Application :: Snowflake Data Reports</font></h2>
 
     <form:form method="POST"
                action="/spring-mvc-xml/addEmployee" modelAttribute="employee">
@@ -48,7 +48,7 @@
         var dataObject = [];
         $.ajax({
             type: "POST",
-            url: "/fiserv/white-data/apis/execute-query/results",
+            url: "/blank-matrix-systems/apis/execute-query/results",
             dataType: "json",
             data: "{ \"query\"" + " : \"" + $("#query").val() + "\" , \"numberOfResults\" : \"" + $("#numberOfResults").val() + "\" }",
             contentType: 'application/json; charset=utf-8',
@@ -70,7 +70,7 @@
                     paging: true,
                     processing: true,
                     ajax: {
-                        url: '/fiserv/white-data/apis/api/getData',
+                        url: '/blank-matrix-systems/apis/api/getData',
                         contentType: 'application/json',
                         dataType: "json",
                         type: 'POST',
